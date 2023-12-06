@@ -5,6 +5,11 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User
+from .models import Listing
+from .models import Bid
+from .models import Comment
+from .models import Category
+from django import forms
 
 
 def index(request):
@@ -60,3 +65,32 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+
+    #creata a listing form
+class ListingForm(forms.ModelForm):
+    class Meta:
+        model = Listing
+        fields = ['title', 'price', 'date', 'description', 'image', 'category']
+
+    #create create Listing
+def createListing(request):
+    if request.method == 'GET':
+        allCategories = Category.objects.all()
+        return render(request, "auctions/createListing.html", {
+            'categories': allCategories
+        })
+        
+    if request.method == 'POST':
+        form = ListingForm(request.POST)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+        if form.is_valid():
+            form.save()
+            return redirect('createdPage')
+        else:
+            form = ListingForm()
+            
+        return render(request, 'auctions/createListing.html',{
+            'form': form
+        })
+
+
