@@ -1,0 +1,54 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Listing: {{ listing.title }}</h2>
+
+    <div>
+        {% if user.is_authenticated %}
+            <form action="{% url 'watchlist' listing.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">
+                    {% if listing in user_profile.watchlist.all %}
+                        Remove from Watchlist
+                    {% else %}
+                        Add to Watchlist
+                    {% endif %}
+                </button>
+            </form>
+        {% endif %}
+    </div>
+    
+    <div>
+        <h3>Image:</h3>
+        <img src="{{ listing.image }}" alt="Listing Image">
+    </div>
+
+    <div>
+        <h3>Description:</h3>
+        <p>{{ listing.description }}</p>
+    </div>
+
+    <div>
+        <h3>Price:</h3>
+        <p>{{ listing.price }}</p>
+    </div>
+
+    <div>
+        <h3>Category:</h3>
+        <p>{{ listing.category.categoryName }}</p>
+    </div>
+
+    <div>
+        {% if user.is_authenticated %}
+            <form action="{% url 'bid' title=listing.title %}" method="POST">
+                {% csrf_token %}
+                <label for="bid">Place Bid:</label>
+                <input type="number" name="bid">
+                <button type="submit">bid</button>
+            </form>
+        {% endif %}
+    </div>
+    {% if bid_success %}
+        <p>Gebot erfolgreich abgegeben!</p>
+    {% endif %}
+{% endblock %}

@@ -19,6 +19,8 @@ class Listing(models.Model):
     description = models.CharField(max_length=200)
     image = models.URLField(blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    active = models.BooleanField(default=True)
+    wathchlist = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return self.title

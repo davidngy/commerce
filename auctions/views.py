@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 from .models import User
@@ -9,11 +10,15 @@ from .models import Listing
 from .models import Bid
 from .models import Comment
 from .models import Category
-from django import forms
+
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    if request.method == 'GET':
+        activeListings = Listing.objects.filter(active=True)
+        return render(request, "auctions/index.html", {
+            'activeListings': activeListings
+        })
 
 
 def login_view(request):
@@ -67,12 +72,6 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-    #creata a listing form
-class ListingForm(forms.ModelForm):
-    class Meta:
-        model = Listing
-        fields = ['title', 'price', 'date', 'description', 'image', 'category']
-
     #create create Listing
 def createListing(request):
     if request.method == 'GET':
@@ -82,15 +81,59 @@ def createListing(request):
         })
         
     if request.method == 'POST':
-        form = ListingForm(request.POST)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-        if form.is_valid():
-            form.save()
-            return redirect('createdPage')
-        else:
-            form = ListingForm()
-            
-        return render(request, 'auctions/createListing.html',{
-            'form': form
+        title = request.POST.get('title')
+        image = request.POST.get('image')
+        description = request.POST.get('description')
+        date = request.POST.get('date')
+        price = request.POST.get('price')
+        category_name = request.POST.get('category')
+         
+        categoryNew = Category.objects.get(categoryName = category_name)
+
+        newListing = Listing(
+            title=title,
+            image=image,
+            description=description,
+            date=date,
+            price=price,
+            category=categoryNew,
+            active=True 
+        )
+        newListing.save()
+
+        return redirect('createdPage', title=newListing.title)
+                        
+def bid(request, title):
+    listing = get_object_or_404(Listing, title=title)
+
+    if request.method == 'POST':
+        bid = float(request.POST.get('bid'))
+
+        if bid > listing.price:
+            listing.price = bid
+            listing.save()
+
+            return redirect('createdPage', title=listing.title) 
+
+
+    return render(request, 'auctions/createdPage.html', {
+        'listing': listing})
+        
+
+def createdPage(request, title):
+    if request.method == 'GET':
+        listing = Listing.objects.get(title=title)
+        return render(request, 'auctions/createdPage.html', {
+            'listing': listing
         })
 
+def watchlist(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+
+    if request.user in listing.wathchlist.all():
+        listing.wathchlist.remove(request.user)
+    else:
+        listing.wathchlist.add(request.user)
+    
+    return redirect('createdPage', title=listing.title)
 
