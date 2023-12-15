@@ -5,10 +5,11 @@
 
     <div>
         {% if user.is_authenticated %}
-            <form action="{% url 'watchlist' listing.id %}" method="POST">
+            <form action="{% url 'watchlist' %}" method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="listing_id" value="{{ listing.id }}">
                 <button type="submit">
-                    {% if listing in user_profile.watchlist.all %}
+                    {% if listing in user.watchlist.all %}
                         Remove from Watchlist
                     {% else %}
                         Add to Watchlist
@@ -22,6 +23,8 @@
         <h3>Image:</h3>
         <img src="{{ listing.image }}" alt="Listing Image">
     </div>
+
+   
 
     <div>
         <h3>Description:</h3>
@@ -39,11 +42,25 @@
     </div>
 
     <div>
+        <h3>Creator:</h3>
+        <p>{{ listing.creator.username }}</p>
+    </div>
+
+    <div>
+        {% if user.is_authenticated and user == listing.creator %}
+            <form action="{% url 'closeListing' listing.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Close Listing</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div>
         {% if user.is_authenticated %}
             <form action="{% url 'bid' title=listing.title %}" method="POST">
                 {% csrf_token %}
                 <label for="bid">Place Bid:</label>
-                <input type="number" name="bid">
+                <input type="number" name="bid" required>
                 <button type="submit">bid</button>
             </form>
         {% endif %}

@@ -1,0 +1,24 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Winning Auctions</h2>
+
+    {% if winningAuctions %}
+        <ul>
+            {% for auction in winningAuctions %}
+                <div class="card" style="width: 18rem;">
+                    <img src="{{ auction.image }}" class="card-img-top" alt="Listing Image">
+                    <div class="card-body">
+                        <h5 class="card-title">Title: {{ auction.title }}</h5>
+                        <p class="card-text">Price in €: {{ auction.price }}</p>
+                        <p class="card-text">Description: {{ auction.description }}</p>
+                        <p class="card-text">Category: {{ auction.category }}</p>
+                        <p>Congratulations! You won this auction.</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No winning auctions yet.</p>
+    {% endif %}
+{% endblock %}

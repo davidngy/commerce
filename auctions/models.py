@@ -15,19 +15,20 @@ class Category(models.Model):
 class Listing(models.Model):    
     title = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.CharField(max_length=30)
     description = models.CharField(max_length=200)
     image = models.URLField(blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
-    wathchlist = models.ManyToManyField(User, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name="user")
+    highestBidder = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="highestBidder")
+    wathchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
     def __str__(self):
         return self.title
 
 class Bid(models.Model):
     bid = models.DecimalField(max_digits=10, decimal_places=2)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    bidder = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Comment(models.Model):
     bidder = models.ForeignKey(User, on_delete=models.CASCADE)

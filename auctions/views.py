@@ -19,6 +19,8 @@ def index(request):
         return render(request, "auctions/index.html", {
             'activeListings': activeListings
         })
+    
+
 
 
 def login_view(request):
@@ -84,19 +86,20 @@ def createListing(request):
         title = request.POST.get('title')
         image = request.POST.get('image')
         description = request.POST.get('description')
-        date = request.POST.get('date')
         price = request.POST.get('price')
         category_name = request.POST.get('category')
+        
          
-        categoryNew = Category.objects.get(categoryName = category_name)
+        categoryNew = Category.objects.get(categoryName=category_name)
+
 
         newListing = Listing(
             title=title,
             image=image,
             description=description,
-            date=date,
             price=price,
             category=categoryNew,
+            creator=request.user,
             active=True 
         )
         newListing.save()
@@ -111,13 +114,15 @@ def bid(request, title):
 
         if bid > listing.price:
             listing.price = bid
+            listing.highest_bidder = request.user
             listing.save()
 
             return redirect('createdPage', title=listing.title) 
-
-
+        
     return render(request, 'auctions/createdPage.html', {
-        'listing': listing})
+        'listing': listing
+        })
+
         
 
 def createdPage(request, title):
@@ -126,14 +131,65 @@ def createdPage(request, title):
         return render(request, 'auctions/createdPage.html', {
             'listing': listing
         })
-
-def watchlist(request, listing_id):
-    listing = get_object_or_404(Listing, id=listing_id)
-
-    if request.user in listing.wathchlist.all():
-        listing.wathchlist.remove(request.user)
-    else:
-        listing.wathchlist.add(request.user)
     
-    return redirect('createdPage', title=listing.title)
 
+def watchlist(request):
+    if request.method == 'GET':
+        watchlist_items = request.user.watchlist.all()
+        return render(request, 'auctions/watchlist.html', {
+            'watchlist_items': watchlist_items
+            })
+
+    if request.method == 'POST':
+        listing_id = request.POST.get('listing_id')
+        listing = get_object_or_404(Listing, pk=listing_id)
+        watchlist_items = request.user.watchlist.all()
+
+    if listing in request.user.watchlist.all():
+        request.user.watchlist.remove(listing)
+    else:
+        request.user.watchlist.add(listing)
+
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+    
+    
+def categories(request):
+    if request.method == 'POST':
+        category_id = request.POST.get('category_id')
+        return redirect('category', category_id=category_id)
+
+    categories = Category.objects.all()
+    return render(request, 'auctions/categories.html', {
+        'categories': categories
+    })
+
+def category(request, category_id):
+    if request.method == 'GET':
+        category = get_object_or_404(Category, pk=category_id)
+        listings = Listing.objects.filter(category=category)
+        return render(request, 'auctions/category.html', {
+            'category': category,
+            'listings': listings
+            })
+            
+def closeListing(request, listing_id):
+    if request.method == 'POST':
+        listing = get_object_or_404(Listing, pk=listing_id)
+        if request.user == listing.creator:
+            listing.active = False
+            listing.save()
+        return redirect('index')
+     
+def winningAuctions(request):
+    if request.method == 'GET':
+        winningAuctions = Listing.objects.filter(active=False, highestBidder=request.user)
+        return render(request, "auctions/WinningAuctions.html", {
+            'winningAuctions': winningAuctions
+        })
+
+def watchlist(request):
+    if request.method == 'GET':
+        watchlist_items = request.user.watchlist.all()
+        return render(request, 'auctions/watchlist.html', {
+            'watchlist_items': watchlist_items
+            })
