@@ -5,10 +5,11 @@
 
     <div>
         {% if user.is_authenticated %}
-            <form action="{% url 'watchlist' listing.id %}" method="POST">
+            <form action="{% url 'watchlist' %}" method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="listing_id" value="{{ listing.id }}">
                 <button type="submit">
-                    {% if listing in user_profile.watchlist.all %}
+                    {% if listing in user.watchlist.all %}
                         Remove from Watchlist
                     {% else %}
                         Add to Watchlist
