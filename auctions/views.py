@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
+
 from .models import User
 from .models import Listing
 from .models import Bid
@@ -13,14 +14,8 @@ from .models import Category
 
 
 
-def index(request):
-    if request.method == 'GET':
-        activeListings = Listing.objects.filter(active=True)
-        return render(request, "auctions/index.html", {
-            'activeListings': activeListings
-        })
-    
 
+    
 
 
 def login_view(request):
@@ -89,17 +84,29 @@ def createListing(request):
         price = request.POST.get('price')
         category_name = request.POST.get('category')
         
-         
+        user = request.user
+        
         categoryNew = Category.objects.get(categoryName=category_name)
+
+
+        existing_listing = Listing.objects.filter(title=title, active=True).first()
+        
+        if existing_listing:
+            messages.error(request, 'A listing with the same title already exists.')
+            return redirect('createListing')
+        
+        bid = Bid(bid=int(price))
+        bid.save()
 
 
         newListing = Listing(
             title=title,
             image=image,
             description=description,
-            price=price,
+            price=bid.bid,
             category=categoryNew,
-            creator=request.user,
+            creator=user,
+            highestBidder=user,
             active=True 
         )
         newListing.save()
@@ -110,11 +117,11 @@ def bid(request, title):
     listing = get_object_or_404(Listing, title=title)
 
     if request.method == 'POST':
-        bid = float(request.POST.get('bid'))
+        new_bid = int(request.POST.get('bid'))
 
-        if bid > listing.price:
-            listing.price = bid
-            listing.highest_bidder = request.user
+        if new_bid > listing.price:
+            listing.price = new_bid
+            listing.highestBidder = request.user #highest bidder
             listing.save()
 
             return redirect('createdPage', title=listing.title) 
@@ -123,7 +130,21 @@ def bid(request, title):
         'listing': listing
         })
 
-        
+def index(request):
+    if request.method == 'GET':
+        activeListings = Listing.objects.filter(active=True)
+        return render(request, "auctions/index.html", {
+            'activeListings': activeListings
+        })
+    
+def winningAuctions(request):
+    if request.method == 'GET':
+        winning_listings = Listing.objects.filter(active=False, highestBidder=request.user)
+        return render(request, "auctions/WinningAuctions.html", {
+            'winningAuctions': winning_listings
+        })
+
+
 
 def createdPage(request, title):
     if request.method == 'GET':
@@ -133,25 +154,7 @@ def createdPage(request, title):
         })
     
 
-def watchlist(request):
-    if request.method == 'GET':
-        watchlist_items = request.user.watchlist.all()
-        return render(request, 'auctions/watchlist.html', {
-            'watchlist_items': watchlist_items
-            })
 
-    if request.method == 'POST':
-        listing_id = request.POST.get('listing_id')
-        listing = get_object_or_404(Listing, pk=listing_id)
-        watchlist_items = request.user.watchlist.all()
-
-    if listing in request.user.watchlist.all():
-        request.user.watchlist.remove(listing)
-    else:
-        request.user.watchlist.add(listing)
-
-    return redirect(request.META.get('HTTP_REFERER', 'index'))
-    
     
 def categories(request):
     if request.method == 'POST':
@@ -180,16 +183,37 @@ def closeListing(request, listing_id):
             listing.save()
         return redirect('index')
      
-def winningAuctions(request):
-    if request.method == 'GET':
-        winningAuctions = Listing.objects.filter(active=False, highestBidder=request.user)
-        return render(request, "auctions/WinningAuctions.html", {
-            'winningAuctions': winningAuctions
-        })
 
+    
 def watchlist(request):
     if request.method == 'GET':
-        watchlist_items = request.user.watchlist.all()
+        watchlist_items = request.user.watchlist.filter(active=True)
         return render(request, 'auctions/watchlist.html', {
             'watchlist_items': watchlist_items
             })
+
+    if request.method == 'POST':
+        listing_id = request.POST.get('listing_id')
+        listing = get_object_or_404(Listing, pk=listing_id, active=True)
+        watchlist_items = request.user.watchlist.all()
+
+        if listing in request.user.watchlist.all():
+            request.user.watchlist.remove(listing)
+        else:
+            request.user.watchlist.add(listing)
+
+        return redirect(request.META.get('HTTP_REFERER', 'index'))
+    
+def comment(request, title):
+    listing = get_object_or_404(Listing, title=title)
+
+    if request.method == 'POST':
+        comments = request.POST.get('comments')
+
+        if comments:
+            Comment.objects.create(commenter=request.user, listing=listing, comments=comments)
+
+    comments = listing.comment_set.all()
+
+    return redirect('createdPage', title=listing.title)
+    

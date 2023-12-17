@@ -4,14 +4,12 @@
 
     <h2>Categories</h2>
 
-      
-    <ul>
+    <ul class="list-group">
         {% for category in categories %}
-        <li>
-            <a href="{% url 'category' category_id=category.id %}">{{ category.categoryName }}</a>
+        <li class="list-group-item">
+            <a href="{% url 'category' category_id=category.id %}" class="text-decoration-none text-dark">{{ category.categoryName }}</a>
         </li>
         {% endfor %}
     </ul>
-    
     
 {% endblock %}

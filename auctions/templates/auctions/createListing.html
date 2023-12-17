@@ -6,6 +6,14 @@
 
 {% block body %}
     <h2>Create Listing</h2>
+    
+    {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <form action="{% url 'createListing' %}" method="POST">
         {% csrf_token %}
@@ -26,7 +34,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="price" class="form-label">Starting Bid</label>
+            <label for="price" class="form-label">Price</label>
             <input type="number" class="form-control" id="price" name="price" placeholder="Enter Starting Bid" min="1">
         </div>
 

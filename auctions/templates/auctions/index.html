@@ -4,23 +4,23 @@
     <h2>Active Listings</h2>
 
     {% if activeListings %}
-    <ul>
+    <div class="row">
         {% for listing in activeListings %}
-        <div class="card" style="width: 18rem;">
-            <img src="{{ listing.image }}" class="card-img-top" alt="Listing Image">
-            <div class="card-body">
-              <h5 class="card-title">Title: {{ listing.title }}</h5>
-              <p class="card-text">Price in €: {{ listing.price }}</p>
-              <p class="card-text">Description: {{ listing.description }}</p>
-              <p class="card-text">Category: {{ listing.category }}</p>
-              <a href="{% url 'createdPage' title=listing.title %}" class="btn btn-primary">Go somewhere</a>
+        <div class="col-md-4 mb-4">
+            <div class="card" style="width: 18rem;">
+                <img src="{{ listing.image }}" class="card-img-top" alt="Listing Image">
+                <div class="card-body">
+                    <h5 class="card-title">Title: {{ listing.title }}</h5>
+                    <p class="card-text">Price in €: {{ listing.price }}</p>
+                    <p class="card-text">Description: {{ listing.description }}</p>
+                    <p class="card-text">Category: {{ listing.category }}</p>
+                    <a href="{% url 'createdPage' title=listing.title %}" class="btn btn-primary">Go somewhere</a>
+                </div>
             </div>
-          </div>
+        </div>
         {% endfor %}
-    </ul>
-    
+    </div>
     {% else %}
         <p>No active listings available.</p>
     {% endif %}
-    
 {% endblock %}

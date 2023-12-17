@@ -13,6 +13,7 @@
                         <p class="card-text">Price in €: {{ auction.price }}</p>
                         <p class="card-text">Description: {{ auction.description }}</p>
                         <p class="card-text">Category: {{ auction.category }}</p>
+                        <a href="{% url 'createdPage' title=auction.title %}" class="btn btn-primary">View Listing</a>
                         <p>Congratulations! You won this auction.</p>
                     </div>
                 </div>

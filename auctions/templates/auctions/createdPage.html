@@ -56,15 +56,37 @@
     </div>
 
     <div>
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and listing.active %}
             <form action="{% url 'bid' title=listing.title %}" method="POST">
                 {% csrf_token %}
                 <label for="bid">Place Bid:</label>
-                <input type="number" name="bid" required>
+                <input type="number" name="bid">
                 <button type="submit">bid</button>
             </form>
+            
+                <form action="{% url 'comment' title=listing.title %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-floating">
+                        <textarea class="form-control" name="comments" placeholder="Leave a comment here" id="floatingTextarea" rows="4" required></textarea>
+                        <label for="floatingTextarea">Comments</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Add Comment</button>
+                </form>
+
+                <h3>Comments:</h3>
+                <ul>
+                    {% for comment in listing.comment_set.all %}
+                        <li>{{ comment.commenter.username }}: {{ comment.comments }}</li>
+                    {% endfor %}
+                </ul>
+
         {% endif %}
     </div>
+
+    {% if user.is_authenticated and listing.active == False and user == listing.highestBidder %}
+        <p>Congrats! You won the Auction</p>
+    {% endif %}
+    
     {% if bid_success %}
         <p>Gebot erfolgreich abgegeben!</p>
     {% endif %}
