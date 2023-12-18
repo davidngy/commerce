@@ -30,6 +30,7 @@ class Bid(models.Model):
     bid = models.IntegerField()
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True)
 
+
 class Comment(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
     comments = models.TextField(max_length=300, blank=True)

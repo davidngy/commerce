@@ -125,7 +125,13 @@ def bid(request, title):
             listing.save()
 
             return redirect('createdPage', title=listing.title) 
-        
+        else:
+            messages.error(request, 'The bid must be higher than the price!')
+            return render(request, 'auctions/createdPage.html', {
+                'listing': listing
+                })
+            
+
     return render(request, 'auctions/createdPage.html', {
         'listing': listing
         })

@@ -10,11 +10,10 @@
             <div class="card" style="width: 18rem;">
                 <img src="{{ listing.image }}" class="card-img-top" alt="Listing Image">
                 <div class="card-body">
-                    <h5 class="card-title">Title: {{ listing.title }}</h5>
-                    <p class="card-text">Price in €: {{ listing.price }}</p>
-                    <p class="card-text">Date: {{ listing.date }}</p>
-                    <p class="card-text">Description: {{ listing.description }}</p>
-                    <p class="card-text">Category: {{ listing.category }}</p>
+                    <h5 class="card-title"><strong>{{ listing.title }}</strong></h5>
+                    <p class="card-text"><strong>Price:</strong> {{ listing.price }}€</p>
+                    <p class="card-text"><strong>Description:</strong> {{ listing.description }}</p>
+                    <p class="card-text"><strong>Category:</strong> {{ listing.category }}</p>
                     <a href="{% url 'createdPage' title=listing.title %}" class="btn btn-primary">View Listing</a>
                 </div>
             </div>

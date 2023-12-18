@@ -2,14 +2,14 @@
 
 {% block body %}
 
-    <h2>Categories</h2>
+    <h2 class="mt-4 mb-3">Categories</h2>
 
-    <ul class="list-group">
+    <div class="d-flex">
         {% for category in categories %}
-        <li class="list-group-item">
-            <a href="{% url 'category' category_id=category.id %}" class="text-decoration-none text-dark">{{ category.categoryName }}</a>
-        </li>
+            <a href="{% url 'category' category_id=category.id %}" class="list-group-item-action me-2 custom-list-item">
+                {{ category.categoryName }}
+            </a>
         {% endfor %}
-    </ul>
+    </div>
     
 {% endblock %}
